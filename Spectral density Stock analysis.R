@@ -28,7 +28,9 @@ mtext(eq,3,line=-2)
 plot(corr, ylim=c(0.001,1), log="y")
 a <- spectrum(logtimes2)
 a$freq = log(a$freq)
+#a$freq = a$freq[a$freq<-6]
 a$spec = log(a$spec)
+#a$spec = a$spec[1:length(a$freq)]
 plot(a$freq,a$spec, type = "p", pch=19, cex=0.1)
 
 fit2 <- lm(a$spec ~ a$freq)
@@ -36,4 +38,5 @@ fitround2 <- round(coef(fit2),2)
 eq2 <- paste("y=",fitround2[1],"+",fitround2[2],"x")
 print(fit2$coefficients)
 lines(a$freq, fit2$coefficients[1]+a$freq*fit2$coefficients[2])
+
 
