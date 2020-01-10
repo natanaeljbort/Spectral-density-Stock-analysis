@@ -1,4 +1,4 @@
-my.data <- read.table("C:/Users/natan/Desktop/Master/Stocastics/BTCUSD_d.txt")
+my.data <- read.table("C:/Users/JBMJA/Desktop/ASP/LTCUSD_2018.txt")
 my.data2 = ts(my.data)
 average <- mean(my.data2)
 #volatility <- (my.data2-average)^2
@@ -10,17 +10,20 @@ aux4 <- my.data2[-1]
 suma <- 0.33333*(aux1+aux2+aux3)
 volat <- (aux4-suma)**2
 
-logtimes2 <- volat[1:1383]
+logtimes2 <- volat[1:10000]
 print(logtimes2)
 hist.data <- hist(logtimes2, breaks=40, plot=F)
 hist.data$counts = log(1+hist.data$counts)
+hist.data$xname<-"Volatitity"
 histbreaks <- hist.data$breaks[-1]
-corr <- acf(logtimes2,lag.max=50)
-corr2 <- acf(my.data2,lag.max = 500)
+corr <- acf(logtimes2,lag.max=2500)
+corr2 <- acf(my.data2,lag.max = 10000)
 correla <- corr2$acf
 correlavol <- corr$acf
+
 fit <- lm(hist.data$counts ~ histbreaks)
 fitround <- round(coef(fit),2)
+
 eq <- paste("y=",fitround[1],"+",fitround[2],"x")
 print(fit$coefficients)
 layout(matrix(c(1,2), 1, 2, byrow = TRUE))
@@ -29,16 +32,34 @@ plot(hist.data)
 #lines(histbreaks, fit$coefficients[1]+histbreaks*fit$coefficients[2])
 #mtext(eq,3,line=-2).
 plot(corr, ylim=c(0.001,1), log="y")
+
+
+
+
+
 a <- spectrum(correlavol)
 a$freq = log(a$freq)
-#a$freq = a$freq[a$freq<-6]
 a$spec = log(a$spec)
-#a$spec = a$spec[1:length(a$freq)]
-plot(a$freq,a$spec, type = "p", pch=19, cex=0.1)
+i<-0
+bfreq<-0
+bspec<-0
+cont<-0
+for (i in 1:length(a$freq)){
+ if (a$freq[i]<(-4)){
+   if (a$spec[i] >(-7.4)){ 
+   bfreq[cont]=a$freq[i]
+   bspec[cont]=a$spec[i]
+   cont=cont+1
+ }
+ }
+}
 
-fit2 <- lm(a$spec ~ a$freq)
+
+plot(bfreq,bspec, type = "p", pch=19, cex=0.1, xlab="log(Freq)", ylab="log(S)")
+
+plot(a$freq,a$spec, type = "p", pch=19, cex=0.1, xlab="log(Freq)", ylab="log(S)")
+fit2 <- lm(bspec ~ bfreq)
 fitround2 <- round(coef(fit2),2)
 eq2 <- paste("y=",fitround2[1],"+",fitround2[2],"x")
 print(fit2$coefficients)
-lines(a$freq, fit2$coefficients[1]+a$freq*fit2$coefficients[2])
-
+lines(bfreq, fit2$coefficients[1]+bfreq*fit2$coefficients[2])
